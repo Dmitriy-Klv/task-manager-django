@@ -1,0 +1,12 @@
+.env
+.venv
+
+
+db.sqlite3
+*.db
+
+.idea
+__pycache__
+
+history.txt
+/history.txt
