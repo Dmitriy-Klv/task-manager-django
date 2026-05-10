@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 
     #local new app my creation app
-    'test_app',
+    'task_manager_app',
 ]
 
 MIDDLEWARE = [
