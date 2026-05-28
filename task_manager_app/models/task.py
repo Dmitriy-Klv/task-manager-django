@@ -1,4 +1,5 @@
 from django.db import models
+from task_manager_app.models.caregory import Category
 
 STATUS_CHOICES = [
     ("New", "New"),
@@ -7,20 +8,6 @@ STATUS_CHOICES = [
     ("Blocked", "Blocked"),
     ("Done", "Done"),
 ]
-
-
-class Category(models.Model):
-    name = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        db_table = "task_manager_category"
-        verbose_name = "Category"
-        constraints = [
-            models.UniqueConstraint(fields=["name"], name="unique_category_name")
-        ]
 
 
 class Task(models.Model):

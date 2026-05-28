@@ -90,11 +90,11 @@ class Migration(migrations.Migration):
                 ("deadline", models.DateTimeField()),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 (
-                    "task",
+                    "task12.txt",
                     models.ForeignKey(
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
-                        to="task_manager_app.task",
+                        to="task_manager_app.task12.txt",
                     ),
                 ),
             ],

@@ -45,6 +45,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+
+    # third-party libraries
+    'rest_framework',
+
     # local new app my creation app
     "task_manager_app",
 ]

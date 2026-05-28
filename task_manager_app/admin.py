@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from task_manager_app.models import Category, SubTask, Task
+from task_manager_app.models.task import SubTask, Task
 
 
 class SubTaskInline(admin.TabularInline):
