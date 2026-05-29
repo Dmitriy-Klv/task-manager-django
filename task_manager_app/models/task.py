@@ -1,4 +1,5 @@
 from django.db import models
+
 from task_manager_app.models.caregory import Category
 
 STATUS_CHOICES = [
