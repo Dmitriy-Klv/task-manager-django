@@ -6,7 +6,10 @@ from task_manager_app.views.tasks import (
     get_all_tasks,
     get_task,
     get_tasks_statistics,
+    SubTaskListCreateView,
+    SubTaskDetailUpdateDeleteView,
 )
+
 
 urlpatterns = [
     path("home/", greetings),
@@ -14,4 +17,6 @@ urlpatterns = [
     path("tasks/create/", create_task),
     path("tasks/<int:pk>/", get_task, name="task-detail"),
     path("tasks/statistics/", get_tasks_statistics, name="tasks-statistics"),
+    path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-list-create'),
+    path('subtasks/<int:pk>/', SubTaskDetailUpdateDeleteView.as_view(), name='subtask-detail-update-delete'),
 ]
