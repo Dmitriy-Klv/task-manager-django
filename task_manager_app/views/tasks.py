@@ -6,6 +6,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
+
 
 from task_manager_app.models.task import Task, SubTask
 from task_manager_app.serializers.task import (
@@ -28,7 +30,12 @@ def create_task(request: Request):
 
 @api_view(["GET"])
 def get_all_tasks(request: Request):
+    day = request.query_params.get("day")
     tasks = Task.objects.all()
+
+    if day:
+        tasks = tasks.filter(deadline__week_day=day)
+
     serializer = TaskListAllSerializer(tasks, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -84,12 +91,27 @@ def get_tasks_statistics(request: Request):
 
 
 class SubTaskListCreateView(APIView):
-    def get(self, request):
-        subtask = SubTask.objects.all()
-        serializer = SubTaskCreateSerializer(subtask, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get(self, request: Request):
+        task_title = request.query_params.get('task_title')
+        status_val = request.query_params.get('status')
 
-    def post(self, request):
+        queryset = SubTask.objects.all().order_by('-created_at')
+
+        if task_title:
+            queryset = queryset.filter(task__title__icontains=task_title)
+
+        if status_val:
+            queryset = queryset.filter(status=status_val)
+
+        paginator = PageNumberPagination()
+        paginator.page_size = 5
+
+        result_page = paginator.paginate_queryset(queryset, request)
+        serializer = SubTaskCreateSerializer(result_page, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    def post(self, request: Request):
         serializer = SubTaskCreateSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -97,12 +119,12 @@ class SubTaskListCreateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SubTaskDetailUpdateDeleteView(APIView):
-    def get(self, request, pk):
+    def get(self, request: Request, pk: int):
         subtask = get_object_or_404(SubTask, pk=pk)
         serializer = SubTaskCreateSerializer(subtask)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def put(self, request, pk):
+    def put(self, request: Request, pk: int):
         subtask = get_object_or_404(SubTask, pk=pk)
         serializer = SubTaskCreateSerializer(subtask, data=request.data, partial=True)
         if serializer.is_valid():
@@ -110,7 +132,7 @@ class SubTaskDetailUpdateDeleteView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk):
+    def delete(self, request: Request, pk: int):
         subtask = get_object_or_404(SubTask, pk=pk)
         subtask.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

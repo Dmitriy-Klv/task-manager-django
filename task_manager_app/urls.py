@@ -12,9 +12,9 @@ from task_manager_app.views.tasks import (
 
 
 urlpatterns = [
-    path("home/", greetings),
-    path("tasks/", get_all_tasks),
-    path("tasks/create/", create_task),
+    path("home/", greetings, name="greetings"),
+    path("tasks/", get_all_tasks, name="task-list"),
+    path("tasks/create/", create_task, name="task-create"),
     path("tasks/<int:pk>/", get_task, name="task-detail"),
     path("tasks/statistics/", get_tasks_statistics, name="tasks-statistics"),
     path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-list-create'),
