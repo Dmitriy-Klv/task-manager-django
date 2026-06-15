@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.AlterModelOptions(
-            name="task12.txt",
+            name="task",
             options={
                 "ordering": ["-created_at"],
                 "verbose_name": "Task",
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AddConstraint(
-            model_name="task12.txt",
+            model_name="task",
             constraint=models.UniqueConstraint(
                 fields=("title",), name="unique_task_title"
             ),
@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
             table="task_manager_subtask",
         ),
         migrations.AlterModelTable(
-            name="task12.txt",
+            name="task",
             table="task_manager_task",
         ),
     ]
