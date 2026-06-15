@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
+from django.db.models.functions import ExtractWeekDay
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -16,6 +17,16 @@ from task_manager_app.serializers.task import (
     TaskSerializer,
     SubTaskCreateSerializer
 )
+
+WEEK_DAY_MAP = {
+    'sunday': 1,
+    'monday': 2,
+    'tuesday': 3,
+    'wednesday': 4,
+    'thursday': 5,
+    'friday': 6,
+    'saturday': 7,
+}
 
 
 @api_view(["POST"])
@@ -34,7 +45,13 @@ def get_all_tasks(request: Request):
     tasks = Task.objects.all()
 
     if day:
-        tasks = tasks.filter(deadline__week_day=day)
+        week_day = WEEK_DAY_MAP.get(day.lower())
+        if week_day is None:
+            return Response(
+                {"error": f"Invalid day '{day}'. Valid values: {', '.join(WEEK_DAY_MAP.keys())}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        tasks = tasks.annotate(week_day=ExtractWeekDay('deadline')).filter(week_day=week_day)
 
     serializer = TaskListAllSerializer(tasks, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -58,7 +75,7 @@ def get_tasks_statistics(request: Request):
 
         total_count = Task.objects.count()
 
-        status_choices = ["New", "In progress", "Pending", "Blocked", "Done"]
+        status_choices = ["New", "In progress", "Blocked", "Pending", "Done"]
         query_stats = (
             Task.objects.values("status")
             .annotate(count=Count("id"))
@@ -90,26 +107,25 @@ def get_tasks_statistics(request: Request):
         )
 
 
-class SubTaskListCreateView(APIView):
+class SubTaskListCreateView(APIView, PageNumberPagination):
+    page_size = 5
+
     def get(self, request: Request):
+        filters = {}
         task_title = request.query_params.get('task_title')
         status_val = request.query_params.get('status')
 
-        queryset = SubTask.objects.all().order_by('-created_at')
-
         if task_title:
-            queryset = queryset.filter(task__title__icontains=task_title)
+            filters['task__title__icontains'] = task_title
 
         if status_val:
-            queryset = queryset.filter(status=status_val)
+            filters['status'] = status_val
 
-        paginator = PageNumberPagination()
-        paginator.page_size = 5
+        queryset = SubTask.objects.filter(**filters).order_by('-created_at')
 
-        result_page = paginator.paginate_queryset(queryset, request)
+        result_page = self.paginate_queryset(queryset, request, view=self)
         serializer = SubTaskCreateSerializer(result_page, many=True)
-
-        return paginator.get_paginated_response(serializer.data)
+        return self.get_paginated_response(serializer.data)
 
     def post(self, request: Request):
         serializer = SubTaskCreateSerializer(data=request.data)
@@ -117,6 +133,7 @@ class SubTaskListCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class SubTaskDetailUpdateDeleteView(APIView):
     def get(self, request: Request, pk: int):
@@ -136,5 +153,3 @@ class SubTaskDetailUpdateDeleteView(APIView):
         subtask = get_object_or_404(SubTask, pk=pk)
         subtask.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
