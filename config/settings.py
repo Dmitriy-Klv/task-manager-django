@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # third-party libraries
     "rest_framework",
+    "django_filters",
     # local new app my creation app
     "task_manager_app",
 ]
