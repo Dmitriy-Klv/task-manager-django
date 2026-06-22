@@ -9,6 +9,7 @@ from task_manager_app.views.tasks import (
     SubTaskListCreateView,
     SubTaskDetailView,
 )
+
 from task_manager_app.views.categories import CategoryViewSet
 
 router = DefaultRouter()
@@ -20,6 +21,6 @@ urlpatterns = [
     path("tasks/<int:pk>/", TaskDetailView.as_view(), name="task-detail"),
     path("tasks/statistics/", get_tasks_statistics, name="tasks-statistics"),
     path('subtasks/', SubTaskListCreateView.as_view(), name='subtask-list-create'),
-    path('subtasks/<int:pk>/', SubTaskDetailUpdateDeleteView.as_view(), name='subtask-detail-update-delete'),
+    path('subtasks/<int:pk>/', SubTaskDetailView.as_view(), name='subtask-detail-update-delete'),
     path('', include(router.urls)),
 ]
