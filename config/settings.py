@@ -134,9 +134,22 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+from datetime import timedelta
+
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
     'DEFAULT_PAGINATION_CLASS': 'task_manager_app.pagination.StandardCursorPagination',
-    'PAGE_SIZE': 6,
+    'PAGE_SIZE': 5,
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
 LOGS_DIR = BASE_DIR / 'logs'

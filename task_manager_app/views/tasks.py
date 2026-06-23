@@ -1,6 +1,7 @@
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework import filters, status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
@@ -29,6 +30,7 @@ WEEK_DAY_MAP = {
 
 
 class TaskListCreateView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = TaskCreateSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['status', 'deadline']
@@ -49,11 +51,13 @@ class TaskListCreateView(ListCreateAPIView):
 
 
 class TaskDetailView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
 
 
 @api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def get_tasks_statistics(request: Request):
     try:
         now = timezone.now()
@@ -93,6 +97,7 @@ def get_tasks_statistics(request: Request):
 
 
 class SubTaskListCreateView(ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = SubTaskCreateSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['status', 'deadline']
@@ -104,5 +109,6 @@ class SubTaskListCreateView(ListCreateAPIView):
 
 
 class SubTaskDetailView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = SubTask.objects.all()
     serializer_class = SubTaskCreateSerializer
