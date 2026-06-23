@@ -1,4 +1,4 @@
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
 from rest_framework import filters, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -11,6 +11,7 @@ from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 
 from task_manager_app.models.task import Task, SubTask
+from task_manager_app.permissions import IsOwnerOrReadOnly
 from task_manager_app.serializers.task import (
     TaskCreateSerializer,
     TaskSerializer,
@@ -49,11 +50,26 @@ class TaskListCreateView(ListCreateAPIView):
             queryset = queryset.annotate(week_day=ExtractWeekDay('deadline')).filter(week_day=week_day)
         return queryset
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
 
 class TaskDetailView(RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+
+
+class MyTaskListView(ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TaskCreateSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['status', 'deadline']
+    search_fields = ['title', 'description']
+    ordering_fields = ['created_at']
+
+    def get_queryset(self):
+        return Task.objects.filter(owner=self.request.user)
 
 
 @api_view(["GET"])
@@ -107,8 +123,11 @@ class SubTaskListCreateView(ListCreateAPIView):
     def get_queryset(self):
         return SubTask.objects.all().order_by('-created_at')
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
 
 class SubTaskDetailView(RetrieveUpdateDestroyAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
     queryset = SubTask.objects.all()
     serializer_class = SubTaskCreateSerializer

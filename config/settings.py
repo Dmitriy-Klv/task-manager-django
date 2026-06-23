@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     # third-party libraries
     "rest_framework",
     "django_filters",
+    "drf_yasg",
     # local new app my creation app
     "task_manager_app",
 ]

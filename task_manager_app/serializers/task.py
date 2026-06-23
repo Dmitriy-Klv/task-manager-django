@@ -7,9 +7,11 @@ from task_manager_app.models.category import Category
 
 
 class TaskCreateSerializer(serializers.ModelSerializer):
+    owner = serializers.StringRelatedField(read_only=True)
+
     class Meta:
         model = Task
-        fields = ["id", "title", "description", "status", "deadline"]
+        fields = ["id", "title", "description", "status", "deadline", "owner"]
 
     def validate_deadline(self, value):
         if value and value < timezone.now():
@@ -35,10 +37,11 @@ class TaskSerializer(serializers.ModelSerializer):
 
 class SubTaskCreateSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField(read_only=True)
+    owner = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = SubTask
-        fields = ["id", "title", "description", "status", "deadline", 'created_at']
+        fields = ["id", "title", "description", "status", "deadline", "created_at", "owner"]
 
 
 class CategoryCreateSerializer(serializers.ModelSerializer):
