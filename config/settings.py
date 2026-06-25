@@ -138,6 +138,9 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+EMAIL_BACKEND = env.str("EMAIL_BACKEND", default="django.core.mail.backends.console.EmailBackend")
+DEFAULT_FROM_EMAIL = env.str("DEFAULT_FROM_EMAIL", default="noreply@taskmanager.local")
+
 from datetime import timedelta
 
 REST_FRAMEWORK = {
